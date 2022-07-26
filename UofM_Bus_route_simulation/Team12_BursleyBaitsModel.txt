@@ -1,0 +1,1463 @@
+********************************************************************************
+*                                                                              *
+*                         Formatted Listing of Model:                          *
+*             C:\Users\ulavy\Desktop\Team12_BursleyBaitsModel.mod              *
+*                                                                              *
+********************************************************************************
+
+  Time Units:                        Minutes
+  Distance Units:                    Feet
+
+
+********************************************************************************
+*                                  Locations                                   *
+********************************************************************************
+
+  Name         Cap      Units Stats       Rules          Cost        
+  ------------ -------- ----- ----------- -------------- ------------
+  Stop1        INF      1     Time Series Oldest, ,                  
+  Stop2        INF      1     Time Series Oldest, ,                  
+  Stop8        INF      1     Time Series Oldest, ,                  
+  Stop7        INF      1     Time Series Oldest, ,                  
+  Stop3        inf      1     Time Series Oldest, ,                  
+  Stop4        INF      1     Time Series Oldest, ,                  
+  Stop6        inf      1     Time Series Oldest, ,                  
+  Stop5        inf      1     Time Series Oldest, ,                  
+  Stop1_Queue  INFINITE 1     Time Series Oldest, FIFO,              
+  drop1        inf      1     Time Series Oldest, ,                  
+  drop2        inf      1     Time Series Oldest, ,                  
+  drop3        inf      1     Time Series Oldest, ,                  
+  drop4        inf      1     Time Series Oldest, ,                  
+  drop5        inf      1     Time Series Oldest, ,                  
+  drop6        inf      1     Time Series Oldest, ,                  
+  drop7        inf      1     Time Series Oldest, ,                  
+  drop8        inf      1     Time Series Oldest, ,                  
+  Stop2_Queue  INFINITE 1     Time Series Oldest, FIFO,              
+  Stop3_Queue  INFINITE 1     Time Series Oldest, FIFO,              
+  Stop4_Queue  INFINITE 1     Time Series Oldest, FIFO,              
+  Stop5_Queue  INFINITE 1     Time Series Oldest, FIFO,              
+  Stop6_Queue  INFINITE 1     Time Series Oldest, FIFO,              
+  Stop7_Queue  INFINITE 1     Time Series Oldest, FIFO,              
+  Stop8_Queue  INFINITE 1     Time Series Oldest, FIFO,              
+  Stop9        INF      1     Time Series Oldest, ,                  
+  Stop10       INF      1     Time Series Oldest, ,                  
+  Stop11       INF      1     Time Series Oldest, ,                  
+  Stop12       INF      1     Time Series Oldest, ,                  
+  Stop13       INF      1     Time Series Oldest, ,                  
+  Stop14       INF      1     Time Series Oldest, ,                  
+  Stop9_Queue  INFINITE 1     Time Series Oldest, FIFO,              
+  Stop10_Queue INFINITE 1     Time Series Oldest, FIFO,              
+  Stop11_Queue INFINITE 1     Time Series Oldest, FIFO,              
+  Stop12_Queue INFINITE 1     Time Series Oldest, FIFO,              
+  Stop13_Queue INFINITE 1     Time Series Oldest, FIFO,              
+  Stop14_Queue INFINITE 1     Time Series Oldest, FIFO,              
+  Drop9        INF      1     Time Series Oldest, ,                  
+  Drop10       INF      1     Time Series Oldest, ,                  
+  Drop11       INF      1     Time Series Oldest, ,                  
+  Drop12       INF      1     Time Series Oldest, ,                  
+  Drop13       INF      1     Time Series Oldest, ,                  
+  Drop14       INF      1     Time Series Oldest, ,                  
+  Warehouse    1        1     Time Series Oldest, ,                  
+
+
+********************************************************************************
+*                                   Entities                                   *
+********************************************************************************
+
+  Name       Speed (fpm)  Stats       Cost        
+  ---------- ------------ ----------- ------------
+  Passenger  150          Time Series             
+  Bus        150          Time Series             
+
+
+********************************************************************************
+*                                  Processing                                  *
+********************************************************************************
+
+                                  Process                     Routing
+
+ Entity    Location     Operation            Blk  Output    Destination Rule     Move Logic
+ --------- ------------ ------------------   ---- --------- ----------- -------  ------------
+ Passenger Stop1_Queue                       1    Passenger Stop1       Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	inc positive_in_bus // Increasing the total positive cases in bus and in the system
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then //For finding spread of covid in bus when there is a positive case inside the bus
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then 
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask() // defing the spread based on a distribution specifically for no mask
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 // The following code causes an increase in a variable defining the current number of passengers to be dropped at respective destinations
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+                                                                                 If Destination = 11 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_2
+                                                                                 }
+                                                                                 If Destination = 12 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_3
+                                                                                 }
+                                                                                 If Destination = 13 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_4
+                                                                                 }
+                                                                                 If Destination = 14 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_5
+                                                                                 }
+                                                                                 If Destination = 15 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_6
+                                                                                 }
+                                                                                 If Destination = 16 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_7
+                                                                                 }
+                                                                                 If Destination = 17 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_8
+                                                                                 }
+                                                                                 
+ Bus       Stop1        If (Bus_Capacity - P_in_bus) > Num_P_1 Then // Denoting that the bus can accomodate all the waiting passengers at the stop
+                        {
+                        	Inc P_in_bus, Num_P_1
+                        	Load Num_P_1
+                        	Wait 10*Num_P_1 sec
+                        	Num_P_1=0
+                        }
+                        Else // Denoting that the bus can accomodate only the avalable free capacity in it
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_1=Num_P_1-(Bus_Capacity - P_in_bus)
+                        }                    1    Bus       drop2       FIRST 1  Move For 1.25 min
+ Passenger Stop2_Queue                       1    Passenger Stop2       Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+                                                                                 If Destination = 11 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_2
+                                                                                 }
+                                                                                 If Destination = 12 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_3
+                                                                                 }
+                                                                                 If Destination = 13 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_4
+                                                                                 }
+                                                                                 If Destination = 14 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_5
+                                                                                 }
+                                                                                 If Destination = 15 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_6
+                                                                                 }
+                                                                                 If Destination = 16 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_7
+                                                                                 }
+                                                                                 If Destination = 17 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_8
+                                                                                 }
+ Bus       Stop2        If (Bus_Capacity - P_in_bus) > Num_P_2 Then
+                        {
+                        	Inc P_in_bus, Num_P_2
+                        	Load (Num_P_2)
+                        	Wait 10*Num_P_2 sec
+                        	Num_P_2=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_2=Num_P_2-(Bus_Capacity - P_in_bus)
+                        }
+                                             1    Bus       drop3       FIRST 1  Move For 1.25 min
+ Passenger Stop3_Queue                       1    Passenger Stop3       Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+                                                                                 If Destination = 11 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_2
+                                                                                 }
+                                                                                 If Destination = 12 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_3
+                                                                                 }
+                                                                                 If Destination = 13 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_4
+                                                                                 }
+                                                                                 If Destination = 14 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_5
+                                                                                 }
+                                                                                 If Destination = 15 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_6
+                                                                                 }
+                                                                                 If Destination = 16 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_7
+                                                                                 }
+                                                                                 If Destination = 17 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_8
+                                                                                 }
+ Bus       Stop3        If (Bus_Capacity - P_in_bus) > Num_P_3 Then
+                        {
+                        	Inc P_in_bus, Num_P_3
+                        	Load (Num_P_3)
+                        	Wait 10*Num_P_3 sec
+                        	Num_P_3=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_3=Num_P_3-(Bus_Capacity - P_in_bus)
+                        }
+                                             1    Bus       drop4       FIRST 1  Move For 2.1 min
+ Passenger Stop4_Queue                       1    Passenger Stop4       Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 
+                                                                                 
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+                                                                                 If Destination = 11 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_2
+                                                                                 }
+                                                                                 If Destination = 12 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_3
+                                                                                 }
+                                                                                 If Destination = 13 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_4
+                                                                                 }
+                                                                                 If Destination = 14 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_5
+                                                                                 }
+                                                                                 If Destination = 15 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_6
+                                                                                 }
+                                                                                 If Destination = 16 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_7
+                                                                                 }
+                                                                                 If Destination = 17 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_8
+                                                                                 }
+ Passenger Stop5_Queue                       1    Passenger Stop5       Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+                                                                                 If Destination = 11 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_2
+                                                                                 }
+                                                                                 If Destination = 12 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_3
+                                                                                 }
+                                                                                 If Destination = 13 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_4
+                                                                                 }
+                                                                                 If Destination = 14 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_5
+                                                                                 }
+                                                                                 If Destination = 15 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_6
+                                                                                 }
+                                                                                 If Destination = 16 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_7
+                                                                                 }
+                                                                                 If Destination = 17 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_8
+                                                                                 }
+ Passenger Stop6_Queue                       1    Passenger Stop6       Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 
+                                                                                 
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+                                                                                 If Destination = 11 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_2
+                                                                                 }
+                                                                                 If Destination = 12 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_3
+                                                                                 }
+                                                                                 If Destination = 13 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_4
+                                                                                 }
+                                                                                 If Destination = 14 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_5
+                                                                                 }
+                                                                                 If Destination = 15 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_6
+                                                                                 }
+                                                                                 If Destination = 16 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_7
+                                                                                 }
+                                                                                 If Destination = 17 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_8
+                                                                                 }
+ Passenger Stop7_Queue                       1    Passenger Stop7       Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+                                                                                 If Destination = 11 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_2
+                                                                                 }
+                                                                                 If Destination = 12 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_3
+                                                                                 }
+                                                                                 If Destination = 13 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_4
+                                                                                 }
+                                                                                 If Destination = 14 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_5
+                                                                                 }
+                                                                                 If Destination = 15 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_6
+                                                                                 }
+                                                                                 If Destination = 16 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_7
+                                                                                 }
+                                                                                 If Destination = 17 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_8
+                                                                                 }
+ Passenger Stop8_Queue                       1    Passenger Stop8       Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+                                                                                 If Destination = 11 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_2
+                                                                                 }
+                                                                                 If Destination = 12 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_3
+                                                                                 }
+                                                                                 If Destination = 13 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_4
+                                                                                 }
+                                                                                 If Destination = 14 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_5
+                                                                                 }
+                                                                                 If Destination = 15 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_6
+                                                                                 }
+                                                                                 If Destination = 16 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_7
+                                                                                 }
+                                                                                 If Destination = 17 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_8
+                                                                                 }
+ Bus       Stop4        If (Bus_Capacity - P_in_bus) > Num_P_4 Then
+                        {
+                        	Inc P_in_bus, Num_P_4
+                        	Load (Num_P_4)
+                        	Wait 10*Num_P_4 sec
+                        	Num_P_4=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_4=Num_P_4-(Bus_Capacity - P_in_bus)
+                        }
+                                             1    Bus       drop5       FIRST 1  Move For 2 min
+ Bus       Stop5        If (Bus_Capacity - P_in_bus) > Num_P_5 Then
+                        {
+                        	Inc P_in_bus, Num_P_5
+                        	Load (Num_P_5)
+                        	Wait 10*Num_P_5 sec
+                        	Num_P_5=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_5=Num_P_5-(Bus_Capacity - P_in_bus)
+                        }
+                                             1    Bus       drop6       FIRST 1  Move For 5.1 min
+ Bus       Stop6        If (Bus_Capacity - P_in_bus) > Num_P_6 Then
+                        {
+                        	Inc P_in_bus, Num_P_6
+                        	Load (Num_P_6)
+                        	Wait 10*Num_P_6 sec
+                        	Num_P_6=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	
+                        	Num_P_6=Num_P_6-(Bus_Capacity - P_in_bus)
+                        }
+                                             1    Bus       drop7       FIRST 1  Move For 2.8 min
+ Bus       Stop7        If (Bus_Capacity - P_in_bus) > Num_P_7 Then
+                        {
+                        	Inc P_in_bus, Num_P_7
+                        	Load (Num_P_7)
+                        	Wait 10*Num_P_7 sec
+                        	Num_P_7=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_7=Num_P_7-(Bus_Capacity - P_in_bus)
+                        }
+                                             1    Bus       drop8       FIRST 1  Move For 2.4 min
+ Bus       Stop8        If (Bus_Capacity - P_in_bus) > Num_P_8 Then
+                        {
+                        	Inc P_in_bus, Num_P_8
+                        	Load (Num_P_8)
+                        	Wait 10*Num_P_8 sec
+                        	Num_P_8=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_8=Num_P_8-(Bus_Capacity - P_in_bus)
+                        }
+                                             1    Bus       Drop9       FIRST 1  Move For 3.8 min
+ Passenger drop1        If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Bus       drop1        // Following code is designed for deboardinh only those passengers whose drop location is this bus stop
+                        Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_1 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_1 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_1
+                        Num_P_Drop_1=0       1    Bus       Stop1       FIRST 1  
+ Bus       drop2        Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_2 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_2 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_2
+                        Num_P_Drop_2=0       1    Bus       Stop2       FIRST 1  
+ Bus       drop3        Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_3 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_3 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_3
+                        Num_P_Drop_3=0       1    Bus       Stop3       FIRST 1  
+ Bus       drop4        Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_4 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_4 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_4
+                        Num_P_Drop_4=0       1    Bus       Stop4       FIRST 1  
+ Bus       drop5        Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_5 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_5 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_5
+                        Num_P_Drop_5=0       1    Bus       Stop5       FIRST 1  
+ Bus       drop6        Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_6 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_6 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_6
+                        Num_P_Drop_6=0       1    Bus       Stop6       FIRST 1  
+ Bus       drop7        Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_7 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_7 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_7
+                        Num_P_Drop_7=0       1    Bus       Stop7       FIRST 1  
+ Bus       drop8        Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_8 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_8 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_8
+                        Num_P_Drop_8=0       1    Bus       Stop8       FIRST 1  
+ Passenger drop2        If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger drop3        If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger drop4        If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger drop5        If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger drop6        If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger drop7        If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger drop8        If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger Stop9_Queue                       1    Passenger Stop9       Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 	
+                                                                                 
+                                                                                 If Destination = 38 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_10
+                                                                                 }
+                                                                                 If Destination = 39 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_11
+                                                                                 }
+                                                                                 If Destination = 40 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_12
+                                                                                 }
+                                                                                 If Destination = 41 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_13
+                                                                                 }
+                                                                                 If Destination = 42 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_14
+                                                                                 }
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+ Passenger Stop10_Queue                      1    Passenger Stop10      Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }	
+                                                                                 
+                                                                                 If Destination = 39 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_11
+                                                                                 }
+                                                                                 If Destination = 40 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_12
+                                                                                 }
+                                                                                 If Destination = 41 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_13
+                                                                                 }
+                                                                                 If Destination = 42 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_14
+                                                                                 }
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+ Passenger Stop11_Queue                      1    Passenger Stop11      Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 	
+                                                                                 If Destination = 40 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_12
+                                                                                 }
+                                                                                 If Destination = 41 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_13
+                                                                                 }
+                                                                                 If Destination = 42 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_14
+                                                                                 }
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+ Passenger Stop12_Queue                      1    Passenger Stop12      Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 	
+                                                                                 
+                                                                                 If Destination = 41 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_13
+                                                                                 }
+                                                                                 If Destination = 42 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_14
+                                                                                 }
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+ Passenger Stop13_Queue                      1    Passenger Stop13      Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 
+                                                                                 If Destination = 42 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_14
+                                                                                 }
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+ Passenger Stop14_Queue                      1    Passenger Stop14      Load 1   If PassengerType = 1 Then
+                                                                                 {
+                                                                                 	Inc incoming_positive
+                                                                                 	positive_in_bus = positive_in_bus + 1
+                                                                                 }
+                                                                                 If positive_in_bus >= 1 Then
+                                                                                 {
+                                                                                 	If PassengerType = 0 Then
+                                                                                 	{
+                                                                                 		If Mask = 0 Then
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist_no_mask()
+                                                                                 		}
+                                                                                 		Else
+                                                                                 		{
+                                                                                 			PassengerType = spread_dist()
+                                                                                 		}
+                                                                                 		If PassengerType = 1 Then
+                                                                                 		{
+                                                                                 			Inc positive_in_bus
+                                                                                 		}
+                                                                                 	}
+                                                                                 	Else
+                                                                                 	{
+                                                                                 		PassengerType = 1
+                                                                                 	}
+                                                                                 }
+                                                                                 	
+                                                                                 If Destination = 10 Then
+                                                                                 {
+                                                                                 	Inc Num_P_Drop_1
+                                                                                 }
+ Bus       Drop9        Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_9 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_9 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_9
+                        Num_P_Drop_9=0       1    Bus       Stop9       FIRST 1  
+ Bus       Stop9        If (Bus_Capacity - P_in_bus) > Num_P_9 Then
+                        {
+                        	Inc P_in_bus, Num_P_9
+                        	Load Num_P_9
+                        	Wait 10*Num_P_9 sec
+                        	Num_P_9=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_9=Num_P_9-(Bus_Capacity - P_in_bus)
+                        }                    1    Bus       Drop10      FIRST 1  move for 1.3 min
+ Bus       Drop10       Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_10 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_10 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_10
+                        Num_P_Drop_10=0      1    Bus       Stop10      FIRST 1  
+ Bus       Stop10       If (Bus_Capacity - P_in_bus) > Num_P_10 Then
+                        {
+                        	Inc P_in_bus, Num_P_10
+                        	Load Num_P_10
+                        	Wait 10*Num_P_10 sec
+                        	Num_P_10=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_10=Num_P_10-(Bus_Capacity - P_in_bus)
+                        }                    1    Bus       Drop11      FIRST 1  move for 3.5 min
+ Bus       Drop11       Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_11 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_11 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_11
+                        Num_P_Drop_11=0      1    Bus       Stop11      FIRST 1  
+ Bus       Stop11       If (Bus_Capacity - P_in_bus) > Num_P_11 Then
+                        {
+                        	Inc P_in_bus, Num_P_11
+                        	Load Num_P_11
+                        	Wait 10*Num_P_11 sec
+                        	Num_P_11=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_11=Num_P_11-(Bus_Capacity - P_in_bus)
+                        }                    1    Bus       Drop12      FIRST 1  move for 2.3 min
+ Bus       Drop12       Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_12 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_12 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_12
+                        Num_P_Drop_12=0      1    Bus       Stop12      FIRST 1  
+ Bus       Stop12       If (Bus_Capacity - P_in_bus) > Num_P_12 Then
+                        {
+                        	Inc P_in_bus, Num_P_12
+                        	Load Num_P_12
+                        	Wait 10*Num_P_12 sec
+                        	Num_P_12=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_12=Num_P_12-(Bus_Capacity - P_in_bus)
+                        }                    1    Bus       Drop13      FIRST 1  move for 1.6 min
+ Bus       Drop13       Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_13 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_13 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_13
+                        Num_P_Drop_13=0      1    Bus       Stop13      FIRST 1  
+ Bus       Stop13       If (Bus_Capacity - P_in_bus) > Num_P_13 Then
+                        {
+                        	Inc P_in_bus, Num_P_13
+                        	Load Num_P_13
+                        	Wait 10*Num_P_13 sec
+                        	Num_P_13=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_13=Num_P_13-(Bus_Capacity - P_in_bus)
+                        }                    1    Bus       Drop14      FIRST 1  move for 1 min
+ Bus       Drop14       Int lvCurrentLoc = Location()
+                        Unload Num_P_Drop_14 Iff Destination = lvCurrentLoc
+                        Wait 10*Num_P_Drop_14 sec
+                        
+                        Dec P_in_bus,Num_P_Drop_14
+                        Num_P_Drop_14=0      1    Bus       Stop14      FIRST 1  
+ Bus       Stop14       If (Bus_Capacity - P_in_bus) > Num_P_14 Then
+                        {
+                        	Inc P_in_bus, Num_P_14
+                        	Load Num_P_14
+                        	Wait 10*Num_P_14 sec
+                        	Num_P_14=0
+                        }
+                        Else
+                        {
+                        	Load (Bus_Capacity - P_in_bus)
+                        	Inc P_in_bus, (Bus_Capacity - P_in_bus)
+                        	Wait 10*(Bus_Capacity - P_in_bus) sec
+                        	Num_P_14=Num_P_14-(Bus_Capacity - P_in_bus)
+                        }                    1    Bus       drop1       FIRST 1  move for 1.4 min
+ Passenger Drop9        If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger Drop10       If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger Drop11       If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger Drop12       If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger Drop13       If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+ Passenger Drop14       If PassengerType = 1 Then
+                        {
+                        	Dec positive_in_bus
+                        	Inc outgoing_positive
+                        }                    1    Passenger EXIT        FIRST 1  
+
+
+********************************************************************************
+*                                   Arrivals                                   *
+********************************************************************************
+
+  Entity    Location     Qty Each   First Time Occurrences Frequency         Logic
+  --------- ------------ ---------- ---------- ----------- ----------------- ------------
+  Passenger Stop1_Queue  1          0          INF         e(5.3) min        PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination1()
+                                                                             Inc Num_P_1
+  Passenger Stop2_Queue  1          0          INF         e(9.4) min        PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination2()
+                                                                             Inc Num_P_2
+                                                                             
+  Passenger Stop3_Queue  1          0          INF         W(1.08,13.4) min  PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination3()
+                                                                             Inc Num_P_3
+                                                                             
+  Passenger Stop4_Queue  1          0          INF         e(3.68) min       PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination4()
+                                                                             Inc Num_P_4
+                                                                             
+  Passenger Stop5_Queue  1          0          INF         e(12.9) min       PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination5()
+                                                                             Inc Num_P_5
+                                                                             
+  Passenger Stop6_Queue  1          0          INF         w(0.906,22.3) min PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination6()
+                                                                             Inc Num_P_6
+                                                                             
+  Passenger Stop7_Queue  1          0          INF         e(15.8) min       PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination7()
+                                                                             Inc Num_P_7
+                                                                             
+  Passenger Stop8_Queue  1          0          INF         e(2.47) min       PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination8()
+                                                                             Inc Num_P_8
+                                                                             
+  Bus       Stop1        1          0          1           0                 positive_in_bus = 0
+  Passenger Stop9_Queue  1          0          INF         e(17.4) min       PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination9()
+                                                                             Inc Num_P_9
+                                                                             
+  Passenger Stop10_Queue 1          0          INF         e(19.6) min       PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination10()
+                                                                             Inc Num_P_10
+                                                                             
+  Passenger Stop11_Queue 1          0          INF         e(21.3) min       PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination11()
+                                                                             Inc Num_P_11
+                                                                             
+  Passenger Stop12_Queue 1          0          INF         e(25) min         PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination12()
+                                                                             Inc Num_P_12
+                                                                             
+  Passenger Stop13_Queue 1          0          INF         e(29.1) min       PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination13()
+                                                                             Inc Num_P_13
+                                                                             
+  Passenger Stop14_Queue 1          0          INF         e(32.3) min       PassengerType = positive()
+                                                                             Mask = covered()
+                                                                             Destination = Destination14()
+                                                                             Inc Num_P_14
+                                                                             
+
+
+********************************************************************************
+*                                  Attributes                                  *
+********************************************************************************
+
+  ID            Type         Classification
+  ------------- ------------ --------------
+#
+#1 When Covid Positive
+#0 When Covid Negative
+  PassengerType Integer      Entity        
+#
+#1 if wearing mask
+#0 if not wearing mask
+  Mask          Integer      Entity        
+#
+#Attribute defining the destination
+  Destination   Integer      Entity        
+
+
+********************************************************************************
+*                              Variables (global)                              *
+********************************************************************************
+
+  ID                Type         Initial value Stats      
+  ----------------- ------------ ------------- -----------
+#
+#Number of Passengers waiting at Baits 1 Stop (Going South)
+  Num_P_1           Integer      0             Time Series
+#
+#Number of Passengers waiting at Baits 2 Stop (Going South)
+  Num_P_2           Integer      0             Time Series
+#
+#Number of Passengers waiting at Bursley Stop (Going South)
+  Num_P_3           Integer      0             Time Series
+#
+#Number of Passengers waiting at Pierpont Commons Stop (Going South)
+  Num_P_4           Integer      0             Time Series
+#
+#Number of Passengers waiting at Mitchel Field Stop (Going South)
+  Num_P_5           Integer      0             Time Series
+#
+#Number of Passengers waiting at Medical School Stop (Going South)
+  Num_P_6           Integer      0             Time Series
+#
+#Number of Passengers waiting at Zina Pitcher Stop (Going South)
+  Num_P_7           Integer      0             Time Series
+#
+#Number of Passengers waiting at CCTC Stop (Going South)
+  Num_P_8           Integer      0             Time Series
+#
+#Capacity of Bus
+  Bus_Capacity      Integer      x             Time Series
+#
+#Current number of passengers in bus
+  P_in_bus          Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 1
+  Num_P_Drop_1      Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 2
+  Num_P_Drop_2      Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 3
+  Num_P_Drop_3      Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 4
+  Num_P_Drop_4      Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 5
+  Num_P_Drop_5      Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 6
+  Num_P_Drop_6      Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 7
+  Num_P_Drop_7      Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 8
+  Num_P_Drop_8      Integer      0             Time Series
+#
+#Total Number of Covid positive passengers entering the bus
+  incoming_positive Integer      0             Time Series
+#
+#Total Number of Covid positive passengers exitig the system
+  outgoing_positive Integer      0             Time Series
+#
+#Number of Conid positive (including newly infected) passengers in bus
+  positive_in_bus   Integer      0             Time Series
+#
+#Number of Passengers waiting at Rackham Stop (Going North)
+  Num_P_9           Integer      0             Time Series
+#
+#Number of Passengers waiting at Glen Stop (Going North)
+  Num_P_10          Integer      0             Time Series
+#
+#Number of Passengers waiting at Mitchel Field Stop (Going North)
+  Num_P_11          Integer      0             Time Series
+#
+#Number of Passengers waiting at PPC Stop (Going North)
+  Num_P_12          Integer      0             Time Series
+#
+#Number of Passengers waiting at Bursley Stop (Going North)
+  Num_P_13          Integer      0             Time Series
+#
+#Number of Passengers waiting at Baits 2 Stop (Going North)
+  Num_P_14          Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 9
+  Num_P_Drop_9      Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 10
+  Num_P_Drop_10     Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 11
+  Num_P_Drop_11     Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 12
+  Num_P_Drop_12     Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 13
+  Num_P_Drop_13     Integer      0             Time Series
+#
+#Passengers in bus with destination as Stop 14
+  Num_P_Drop_14     Integer      0             Time Series
+
+
+********************************************************************************
+*                                    Macros                                    *
+********************************************************************************
+
+  ID              Text
+  --------------- ------------
+  x               30
+
+
+********************************************************************************
+*                              User Distributions                              *
+********************************************************************************
+
+  ID                  Type         Cumulative   Percentage   Value       
+  ------------------- ------------ ------------ ------------ ------------
+  positive            Discrete     No           90           0           
+                                                10           1           
+  covered             Discrete     No           0            1           
+                                                100          0           
+  Destination1        Discrete     No           5            11          
+                                                5            12          
+                                                40           13          
+                                                10           14          
+                                                5            15          
+                                                5            16          
+                                                30           17          
+  Destination2        Discrete     No           10           12          
+                                                40           13          
+                                                10           14          
+                                                5            15          
+                                                5            16          
+                                                30           17          
+  Destination3        Discrete     No           40           13          
+                                                10           14          
+                                                10           15          
+                                                10           16          
+                                                30           17          
+  Destination4        Discrete     No           20           14          
+                                                15           15          
+                                                15           16          
+                                                50           17          
+  Destination5        Discrete     No           20           15          
+                                                20           16          
+                                                60           17          
+  Destination6        Discrete     No           20           16          
+                                                80           17          
+  Destination7        Discrete     No           100          17          
+  Destination8        Discrete     No           5            10          
+                                                5            11          
+                                                10           12          
+                                                40           13          
+                                                10           14          
+                                                10           15          
+                                                20           16          
+  spread_dist         Discrete     No           70           0           
+                                                30           1           
+  spread_dist_no_mask Discrete     No           50           0           
+                                                50           1           
+  Destination9        Discrete     No           10           38          
+                                                10           39          
+                                                40           40          
+                                                10           41          
+                                                10           42          
+                                                20           10          
+  Destination10       Discrete     No           10           39          
+                                                50           40          
+                                                10           41          
+                                                10           42          
+                                                20           10          
+  Destination11       Discrete     No           50           40          
+                                                20           41          
+                                                10           42          
+                                                20           10          
+  Destination12       Discrete     No           33           41          
+                                                33           42          
+                                                34           10          
+  Destination13       Discrete     No           50           42          
+                                                50           10          
+  Destination14       Discrete     No           100          10          
+
+
